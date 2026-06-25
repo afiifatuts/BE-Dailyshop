@@ -46,4 +46,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', "%".$search."%")
+            ->orWhere('email', 'like', "%".$search."%");
+    }
+
+    // user can have one store relationship
+    public function store()
+    {
+        return $this->hasOne(Store::class); 
+    }
+    
+    public function buyer()
+    {
+        return $this->hasOne(Buyer::class);
+    }
 }

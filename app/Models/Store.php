@@ -21,4 +21,25 @@ class Store extends Model
         'postal_code',
         'is_verified'
     ];
+
+    // relationship one store owned by one user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function storeBallance()
+    {
+        return $this->hasOne(StoreBallance::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

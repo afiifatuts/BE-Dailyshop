@@ -3,6 +3,11 @@ namespace App\Interface;
 
 interface StoreRepositoryInterface
 {
-    public function getAll(?string $search = null, ?int $limit = 10, bool $execute);
-    public function getAllPaginated(?string $search = null, ?int $rowPerPage = 10);
+    public function getAll(?string $search = null,
+    ?bool $isVerified = false,
+     ?int $limit = 10,
+      bool $execute);
+    public function getAllPaginated(?string $search = null,
+    ?bool $isVerified = false,
+     ?int $rowPerPage = 10);
 }

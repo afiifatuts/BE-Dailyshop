@@ -22,6 +22,17 @@ class Store extends Model
         'is_verified'
     ];
 
+    protected $casts = [
+        'is_verified' => 'boolean',
+    ];
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', "%$search%")
+        ->orWhere('about', 'like', "%$search%")
+        ->orWhere('phone', 'like', "%$search%")
+        ->orWhere('city', 'like', "%$search%");
+    }
     // relationship one store owned by one user
     public function user()
     {

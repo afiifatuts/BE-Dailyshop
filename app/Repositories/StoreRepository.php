@@ -9,11 +9,17 @@ use Illuminate\Support\Facades\DB;
 
 class StoreRepository implements StoreRepositoryInterface
 {
-    public function getAll(?string $search = null, ?int $limit = null, bool $execute = false)
+    public function getAll(?string $search = null,
+    ?bool $isVerified = false,
+     ?int $limit = null, bool $execute = false)
     {
-        $query = Store::where(function ($query) use ($search) {
+        $query = Store::where(function ($query) use ($search, $isVerified) {
             if ($search) {
                 $query->search($search);
+            }
+
+            if ($isVerified !== null) {
+            $query->where('is_verified', $isVerified);
             }
         });
 
@@ -26,7 +32,7 @@ class StoreRepository implements StoreRepositoryInterface
         return $query;
 
     }
-    public function getAllPaginated(?string $search = null, ?int $rowPerPage = 10){
+    public function getAllPaginated(?string $search = null, ?bool $isVerified = false,   ?int $rowPerPage = 10){
 
     }
 }

@@ -14,6 +14,15 @@ class StoreResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id'=> $this->id,
+            'user' => new UserResource($this->user),
+            'name' => $this->name,
+            'logo' => asset('storage/'.$this->logo),
+            'about' => $this->about,
+            'phone' => $this->phone,
+            'address_id' => $this->address_id,
+            'city' => $this->city,
+        ];
     }
 }

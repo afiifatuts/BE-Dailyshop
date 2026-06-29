@@ -23,6 +23,9 @@ class StoreResource extends JsonResource
             'phone' => $this->phone,
             'address_id' => $this->address_id,
             'city' => $this->city,
+            'address' => $this->address,
+            'postal_code' => $this->postal_code,
+            'is_verified' => $this->is_verified
         ];
     }
 }

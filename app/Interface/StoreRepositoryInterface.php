@@ -10,4 +10,6 @@ interface StoreRepositoryInterface
     public function getAllPaginated(?string $search = null,
     ?bool $isVerified = false,
      ?int $rowPerPage = 10);
+     public function getById(string $id);
+     public function create (array $data); 
 }

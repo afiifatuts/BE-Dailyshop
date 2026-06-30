@@ -10,7 +10,7 @@ class Withdrawal extends Model
     use UUID;
 
     protected $fillable = [
-        'store_ballance_id',
+        'store_balance_id',
         'amount',
         'bank_account_name',
         'bank_account_number',
@@ -18,9 +18,9 @@ class Withdrawal extends Model
         'status',
     ];
 
-    public function storeBallance()
+    public function storeBalance()
     {
-        return $this->belongsTo(StoreBallance::class);
+        return $this->belongsTo(StoreBalance::class);
     }
 
 }

@@ -11,4 +11,5 @@ Route::get(
 Route::apiResource('user', UserController::class);
 
 Route::get('store/all/paginated',[StoreController::class,'getAllPaginated']);
+Route::post('store/{id}/verified',[StoreController::class,'updateVerifiedStatus']);
 Route::apiResource('store',StoreController::class);

@@ -32,4 +32,10 @@ class StoreBalanceRepository implements StoreBalanceRepositoryInterface
         $query = $this->getAll($search, null, false);
         return $query->paginate($rowPerPage);
     }
+
+    public function getById(int $id)
+    {
+        $query = StoreBalance::where('id', $id);
+        return $query->first();
+    }
 }

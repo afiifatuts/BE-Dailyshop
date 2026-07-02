@@ -26,6 +26,14 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             StoreBalanceRepositoryInterface::class, StoreBalanceRepository::class
         );
+        $this->app->bind(
+            \App\Interface\StoreBalanceHistoryInterface::class,
+            \App\Repositories\StoreBalanceHistoryRepository::class
+        );
+        $this->app->bind(
+            \App\Interface\WithdrawalInterface::class,
+            \App\Repositories\WithdrawalRepository::class
+        );
     }
 
     /**

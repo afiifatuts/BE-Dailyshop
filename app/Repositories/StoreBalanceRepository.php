@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interface\StoreBalanceRepositoryInterface;
 use App\Models\StoreBalance;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class StoreBalanceRepository implements StoreBalanceRepositoryInterface
 {
@@ -14,7 +15,7 @@ class StoreBalanceRepository implements StoreBalanceRepositoryInterface
             if ($search) {
                 $query->search($search);
             }
-        });
+        })->with(['storeBalanceHistories']);
 
         if ($limit) {
             $query->take($limit);
@@ -35,7 +36,44 @@ class StoreBalanceRepository implements StoreBalanceRepositoryInterface
 
     public function getById(int $id)
     {
-        $query = StoreBalance::where('id', $id);
+        $query = StoreBalance::where('id', $id)->with(['storeBalanceHistories']);
         return $query->first();
+    }
+
+    public function credit(int $storeId, float $amount)
+    {
+        DB::beginTransaction();
+        try {
+            $storeBalance = StoreBalance::find($storeId);
+            $storeBalance->balance = bcadd($storeBalance->balance, $amount, 2);
+            $storeBalance->save();
+            DB::commit();
+
+            return $storeBalance;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function debit(int $storeId, float $amount)
+    {
+        DB::beginTransaction();
+        try {
+            $storeBalance = StoreBalance::find($storeId);
+
+            if (bccomp($storeBalance->balance, $amount, 2) < 0) {
+                throw new \Exception('Saldo tidak mencukupi');
+            }
+
+            $storeBalance->balance = bcsub($storeBalance->balance, $amount, 2);
+            $storeBalance->save();
+            DB::commit();
+
+            return $storeBalance;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw new \Exception($e->getMessage());
+        }
     }
 }

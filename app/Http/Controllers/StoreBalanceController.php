@@ -44,7 +44,7 @@ class StoreBalanceController extends Controller
 
         try {
             $storeBalances = $this->storeBalanceRepository->getAllPaginated(
-                $request['search'],
+                $request['search'] ?? null,
                 $request['row_per_page']
             );
 
@@ -56,19 +56,11 @@ class StoreBalanceController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        try {
+    try {
             $storeBalance = $this->storeBalanceRepository->getById($id);
 
             if (!$storeBalance) {
@@ -79,21 +71,5 @@ class StoreBalanceController extends Controller
         } catch (\Throwable $th) {
             return ResponseHelper::jsonResponse(false, $th->getMessage(), null, 500);
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

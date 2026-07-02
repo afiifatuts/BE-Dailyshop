@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class StoreBalanceHistory extends Model
 {
-    use \App\Traits\UUID;
+    use \App\Traits\UUID, HasFactory;
 
     protected $fillable = [
         'store_balance_id',
@@ -15,6 +16,10 @@ class StoreBalanceHistory extends Model
         'reference_type',
         'amount',
         'remarks',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
     ];
 
     public function storeBalance()

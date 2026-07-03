@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\WithdrawalApproveRequest;
+use App\Http\Requests\WithdrawalStoreRequest;
 use App\Http\Resources\PaginateResource;
 use App\Http\Resources\WithdrawalResource;
 use App\Repositories\WithdrawalRepository;
@@ -57,9 +59,17 @@ class WithdrawalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(WithdrawalStoreRequest $request)
     {
-        //
+        $request = $request->validated();   
+
+        try {
+            $withdrawal = $this->withdrawalRepository->create($request);
+
+            return ResponseHelper::jsonResponse(true, 'Data Penarikan Berhasil Dibuat', new WithdrawalResource($withdrawal), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 
     /**
@@ -67,7 +77,17 @@ class WithdrawalController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $withdrawal = $this->withdrawalRepository->getById($id);
+
+            if (!$withdrawal) {
+                return ResponseHelper::jsonResponse(false, 'Data Penarikan Tidak Ditemukan', null, 404);
+            }
+
+            return ResponseHelper::jsonResponse(true, 'Data Penarikan Berhasil Diambil', new WithdrawalResource($withdrawal), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 
     /**
@@ -84,5 +104,23 @@ class WithdrawalController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function approve(WithdrawalApproveRequest $request, string $id)
+    {
+        $request = $request->validated();
+        try {
+            $withdrawal = $this->withdrawalRepository->getById($id);
+
+            if (!$withdrawal) {
+                return ResponseHelper::jsonResponse(false, 'Data Penarikan Tidak Ditemukan', null, 404);
+            }
+
+            $withdrawal = $this->withdrawalRepository->approve($id, $request['proof']);
+
+            return ResponseHelper::jsonResponse(true, 'Data Penarikan Berhasil Disetujui', new WithdrawalResource($withdrawal), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 }

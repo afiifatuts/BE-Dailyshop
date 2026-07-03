@@ -34,4 +34,9 @@ Route::get(
     'withdrawal/all/paginated',
     [WithdrawalController::class, 'getAllPaginated']
 );
+Route::get(
+    'withdrawal/all/paginated',
+    [WithdrawalController::class, 'getAllPaginated']
+);
+Route::post('withdrawal/{id}/approve', [WithdrawalController::class, 'approve']);
 Route::apiResource('withdrawal', WithdrawalController::class)->except(['store', 'update', 'destroy']);

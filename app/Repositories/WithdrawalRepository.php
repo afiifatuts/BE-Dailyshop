@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interface\WithdrawalInterface;
 use App\Models\StoreBalanceHistory;
 use App\Models\Withdrawal;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class WithdrawalRepository implements WithdrawalInterface
@@ -32,5 +33,71 @@ class WithdrawalRepository implements WithdrawalInterface
     {
         $query = $this->getAll($search, null, false);
         return $query->paginate($rowPerPage);
+    }
+
+    public function getById(string $id)
+    {
+        $query = Withdrawal::where('id', $id);
+        return $query->first();
+    }
+
+    public function create(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $withdrawal = new Withdrawal();
+            $withdrawal->store_balance_id = $data['store_balance_id'];
+            $withdrawal->amount = $data['amount'];
+            $withdrawal->bank_account_name = $data['bank_account_name'];
+            $withdrawal->bank_account_number = $data['bank_account_number'];
+            $withdrawal->bank_name = $data['bank_name'];
+            $withdrawal->save();
+
+            $storeBalanceRepository = new StoreBalanceRepository();
+            $storeBalanceRepository->debit($withdrawal->store_balance_id, $withdrawal->amount);
+
+            $storeBalanceHistoryRepository = new StoreBalanceHistoryRepository();
+            $storeBalanceHistoryRepository->create([
+                'store_balance_id' => $withdrawal->store_balance_id,
+                'type' =>'withdrawal',
+                'reference_id' => $withdrawal->id,
+                'reference_type' => Withdrawal::class,
+                'amount' => $withdrawal->amount,
+                'remarks' => "Permintaan penarikan dana ke {$withdrawal->bank_name} - {$withdrawal->bank_account_number}.",
+            ]);
+            
+            DB::commit();
+            return $withdrawal;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function approve(string $id, UploadedFile $proof)
+    {
+        DB::beginTransaction();
+        try {
+            $withdrawal = Withdrawal::findOrFail($id);
+            $withdrawal->status = 'approved';
+            $withdrawal->proof = $proof->store('assets/withdrawals', 'public');
+            $withdrawal->save();
+
+            $storeBalanceHistoryRepository = new StoreBalanceHistoryRepository();
+            $storeBalanceHistoryRepository->create([
+                'store_balance_id' => $withdrawal->store_balance_id,
+                'type' =>'withdrawal',
+                'reference_id' => $withdrawal->id,
+                'reference_type' => Withdrawal::class,
+                'amount' => -$withdrawal->amount,
+                'remarks' => "Permintaan penarikan dana ke {$withdrawal->bank_name} - {$withdrawal->bank_account_number}.",
+            ]);
+
+            DB::commit();
+            return $withdrawal;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

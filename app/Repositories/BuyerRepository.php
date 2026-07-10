@@ -1,0 +1,58 @@
+<?php 
+
+namespace App\Repositories;
+
+use App\Interface\BuyerInterface;
+use App\Models\Buyer;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Override;
+
+class BuyerRepository implements BuyerInterface
+{
+    public function getAll(?string $search = null,
+     ?int $limit = null, bool $execute = false)
+    {
+        $query = Buyer::where(function ($query) use ($search) {
+            if ($search) {
+                $query->search($search);
+            }
+        });
+
+        if ($limit) {
+            $query->take($limit);
+        }
+        if ($execute) {
+            return $query->get();
+        }
+        return $query;
+
+    }
+    public function getAllPaginated(?string $search = null,  ?int $rowPerPage = 10){
+        $query = $this->getAll($search, null, false);
+        return $query->paginate($rowPerPage);
+    }
+
+    public function getById(string $id)
+    {
+        $query = Buyer::where('id', $id);
+        return $query->first();
+    }
+
+    public function create(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $buyer = new Buyer();
+            $buyer->user_id = $data['user_id'];
+            $buyer->profile_picture = $data['profile_picture']->store('assets/buyer','public');
+            $buyer->phone_number = $data['phone_number'];
+            $buyer->save();
+            DB::commit();
+            return $buyer;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw new Exception($e->getMessage());
+        }
+    }
+}

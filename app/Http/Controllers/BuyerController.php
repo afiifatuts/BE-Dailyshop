@@ -8,6 +8,7 @@ use App\Http\Resources\BuyerResource;
 use App\Interface\BuyerInterface;
 use Illuminate\Http\Request;
 use App\Http\Requests\BuyerStoreRequest;
+use App\Http\Requests\BuyerUpdateRequest;
 
 class BuyerController extends Controller
 {
@@ -85,9 +86,19 @@ class BuyerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(BuyerUpdateRequest $request, string $id)
     {
-        //
+        $validatedData = $request->validated();
+        try {
+            $buyer = $this->buyerRepository->getById($id);
+            if (!$buyer) {
+                return ResponseHelper::jsonResponse(false, 'Buyer not found', null, 404);
+            }
+            $buyer = $this->buyerRepository->update($id, $validatedData);
+            return ResponseHelper::jsonResponse(true, 'Buyer updated successfully', new BuyerResource($buyer), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 
     /**
@@ -95,6 +106,15 @@ class BuyerController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $buyer = $this->buyerRepository->getById($id);
+            if (!$buyer) {
+                return ResponseHelper::jsonResponse(false, 'Buyer not found', null, 404);
+            }
+            $this->buyerRepository->delete($id);
+            return ResponseHelper::jsonResponse(true, 'Buyer deleted successfully', null, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 }

@@ -55,4 +55,38 @@ class BuyerRepository implements BuyerInterface
             throw new Exception($e->getMessage());
         }
     }
+
+    public function update(string $id, array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $buyer = Buyer::findOrFail($id);
+            if (isset($data['profile_picture'])) {
+                $buyer->profile_picture = $data['profile_picture']->store('assets/buyer','public');
+            }
+            if (isset($data['phone_number'])) {
+                $buyer->phone_number = $data['phone_number'];
+            }
+            $buyer->save();
+            DB::commit();
+            return $buyer;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function delete(string $id)
+    {
+        DB::beginTransaction();
+        try {
+            $buyer = Buyer::findOrFail($id);
+            $buyer->delete();
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw new Exception($e->getMessage());
+        }
+    }
 }

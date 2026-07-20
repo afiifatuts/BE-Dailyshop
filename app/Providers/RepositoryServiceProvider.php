@@ -34,6 +34,10 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Interface\WithdrawalInterface::class,
             \App\Repositories\WithdrawalRepository::class
         );
+        $this->app->bind(
+            \App\Interface\ProductCategoryInterface::class,
+            \App\Repositories\ProductCategoryRepository::class
+        );
     }
 
     /**
